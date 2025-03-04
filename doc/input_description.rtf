@@ -1,0 +1,1640 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Bold;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\froman\fcharset0 Times-Roman;
+\f3\froman\fcharset0 Times-BoldItalic;\f4\froman\fcharset0 Times-Italic;\f5\ftech\fcharset77 Symbol;
+\f6\fswiss\fcharset0 Helvetica;\f7\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red255\green0\blue0;}
+{\*\expandedcolortbl;;\csgenericrgb\c100000\c0\c0;}
+{\info
+{\author Eh Tan}}\margl720\margr720\margb720\margt720\viewkind0
+\deftab720
+\pard\pardeftab720\ri0\sl360\slmult1\qc\partightenfactor0
+
+\f0\b\fs22 \cf0 \ul \ulc0 INPUT PARAMETER FILE FOR LUC LAVIER's CODE
+\f1\b0\fs24 \ulnone \
+\pard\pardeftab720\ri-720\sl360\slmult1\qc\partightenfactor0
+
+\f0\b\fs22 \cf0 \ul \ulc0 (by David Okaya & Eh Tan - November 2011)
+\f1\b0\fs24 \ulnone \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 Notes:	(1) Any number of comment lines can be present and are preceded by a semi-colon.
+\f1\fs24 \
+
+\f2\fs22 	(2) If the line contains more than one parameter, the parameters are separated by spaces 		and/or optional comma.
+\f1\fs24 \
+
+\f2\fs22 	(3) In the earth mesh, #nodes = #cells + 1   (one more nodes than cells).
+\f1\fs24 \
+
+\f2\fs22 	(4) Parameters with underline and extra indentation are repeated for #lines based on prior 		parameter.  
+\f1\fs24 \
+
+\f2\fs22 	E.g.,		
+\f3\i\b nitems
+\f1\i0\b0\fs24 \
+
+\f2\fs22 				
+\f3\i\b \ul value1(i), value2(i),....
+\f2\i0\b0 \ulnone 		this line repeated 
+\f3\i\b nitems
+\f2\i0\b0  times.
+\f1\fs24 \
+
+\f2\fs22 	If 
+\f3\i\b nitems
+\f2\i0\b0 =0, then 
+\f4\i \cf2 \ul \ulc2 NO
+\f2\i0 \cf0 \ulnone  underlined line should be given.
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 ;==========================================================
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ;MESH PARAMETERS		NOTE: 
+\f2\b0  first three lines of Mesh Parameters define cell spacing.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 						
+\f4\i dx = (rxbo-x0)/nex
+\f2\i0 ,    
+\f4\i dz = (rzbo-z0)/nez
+\f2\i0  
+\f1\fs24 \
+
+\f2\fs22 					In general, it is good to have 
+\f4\i dx = dz
+\f2\i0  (square cells).
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 nex, nez
+\f2\i0\b0 			
+\f4\i\fs20 2 int
+\f2\i0\fs22 	#Cells in X and Z directions.
+\f1\fs24 \
+
+\f3\i\b\fs22 x0, z0
+\f2\i0\b0 				
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	Beginning coordinates (Upper Left).
+\f1\fs24 \
+
+\f3\i\b\fs22 rxbo, rzbo
+\f2\i0\b0 			
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	Size: width from left (positive), vertical thickness (negative);
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					or coordinate value of Lower Right corner (depth is negative).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 ircoord, coordfile		
+\f4\b0\fs20 int,string
+\f2\i0\fs22 	if 
+\f3\i\b ircoord
+\f2\i0\b0 =1, read the initial coordinates from the file.
+\f1\fs24 \
+
+\f3\i\b\fs22 nzonx
+\f2\i0\b0   (>=0)			
+\f4\i\fs20 int
+\f2\i0\fs22 	#Zones in X-direction (0-regular grid).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul nelz_x(i), sizez_x(i)
+\f2\i0\b0 \ulnone 	
+\f4\i\fs20 int,dbl
+\f2\i0\fs22 	#Cells/zone, size of zone (non-dimensional; percentage of 						
+\f4\i nx
+\f2\i0 ).
+\f1\fs24 \
+
+\f2\fs22  					Sum of all 
+\f3\i\b nelz_x(i)
+\f2\i0\b0  must == 
+\f3\i\b nx
+\f2\i0\b0 ; sum of all 
+\f3\i\b sizez_x(i)
+\f2\i0\b0 = 1.0).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 nzony
+\f2\i0\b0   (>=0)			
+\f4\i\fs20 int
+\f2\i0\fs22 	#Zones in Z-direction (0-regular grid).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul nelz_y(i), sizez_y(i)
+\f2\i0\b0 \ulnone 	
+\f4\i\fs20 int,dbl
+\f2\i0\fs22 	#Cells/zone, size of zone (non-dimensional; percentage of 					
+\f4\i ny
+\f2\i0 ). 						
+\f1\fs24 \
+
+\f2\fs22 					Sum of all 
+\f3\i\b nelz_y(i)
+\f2\i0\b0  must = 
+\f3\i\b nz
+\f2\i0\b0 ; sum of all 
+\f3\i\b sizez_y(i)
+\f2\i0\b0  = 1.0).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 iint_marker, iint_trace
+\f4\b0 r
+\f2\i0 		
+\f4\i\fs20 int, int
+\f2\i0\fs22 	Flags denoting use of markers, tracers: 0-No, 1-Yes.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					For the current version, 
+\f3\i\b iint_marker 
+\f4\b0 \ul MUST
+\f2\i0 \ulnone  be 1.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 nzone_marker
+\f2\i0\b0   (>=0)		
+\f4\i\fs20 int
+\f2\i0\fs22 	#Rectangular zones with 9 markers. 
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul imx1(i),imy1(i),imx2(i),imy2(i)
+\f2\i0\b0 \ulnone 	
+\f4\i\fs20 4 int
+\f2\i0\fs22 	UL, LR corners of cells for zone markers. 					(Ignored)
+\f1\fs24 \
+\pard\pardeftab720\li720\fi-720\ri0\sl360\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab720\li720\fi-720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 nzone_tracer
+\f2\i0\b0  (>=0)
+\f3\i\b , dt_outtracer
+\f2\i0\b0 	
+\f4\i\fs20 int, dbl
+\f2\i0\fs22 	#Rectangular zones with traces (stores x,z,P,T), 							frequency of storage in Kyrs.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul itx1(i),ity1(i),itx2(i),ity2(i)
+\f2\i0\b0 \ulnone  	
+\f4\i\fs20 4 int
+\f2\i0\fs22 	UL, LR corners of cells for zone tracers.
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; MECHANICAL CONDITIONS
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 These are the following types of boundary conditions (
+\f4\i nbc
+\f2\i0 ):
+\f1\fs24 \
+
+\f2\fs22 	1 - velz
+\f1\fs24 \
+
+\f2\fs22 	2 - shear stress (x,z) plane
+\f1\fs24 \
+
+\f2\fs22 	10 - velx	
+\f1\fs24 \
+
+\f2\fs22 	20 - normal stress
+\f1\fs24 \
+
+\f2\fs22 	30 - vely (strike slip version). (Experimental, used at your own risk.)
+\f1\fs24 \
+
+\f2\fs22 	40 - shear stress out of the plane. (Experimental, used at your own risk.)
+\f1\fs24 \
+
+\f2\fs22 	50 - velx with visc-dep profile. (Experimental, used at your own risk.)
+\f1\fs24 \
+\
+
+\f2\fs22 There are four sides for a rectangular domain. Each side is composed of one or more segments, each with its own BC behavior.  These segments per side are defined by 
+\f4\i nbc1(i), nbc2(i)
+\f2\i0 .  The length of each segment is 
+\f4\i nbc2(i)-nbc1(i)
+\f2\i0 , and the BC function 
+\f4\i fbc(
+\f5\i0 \uc0\u967 
+\f4\i )
+\f2\i0  is measured along this segment as a percentage of the length (normalized as 
+\f5 \uc0\u967 
+\f2 =0~1).
+\f1\fs24 \
+\
+
+\f2\fs22 If the BC is a velocity in x or z, it is provided in units of meters/sec, a very small number.  For reference, 1 mm/year = 1 km/myr = 3.17E-11 m/s.
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 ynstressbc, ydrsides
+\f2\i0\b0 		
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	Stress boundary conditions, lithostatic stress BC on the sides. 						Both are 0-No, 1-Yes; hydrostatic BC's on the left (shelf front) indicated by 2
+\f1\fs24 \
+
+\f3\i\b\fs22 nofbc
+\f2\i0\b0 				
+\f4\i\fs20 int
+\f2\i0\fs22 	# of boundary conditions (i.e., how many segments).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0      
+\f4\i nofbc
+\f2\i0  lines of:
+\f1\fs24 \
+
+\f2\fs22 	
+\f3\i\b \ul nofside(i),nbc1(i),nbc2(i),nbc(i), bca(i),bcb(i),bcc(i),bcd(i),bce(i),bcf(i),bcg(i),bch(i),bci(i)
+\f1\i0\b0\fs24 \ulnone \
+
+\f2\fs22 				
+\f4\i\fs20 4 int, 9 dbl
+\f1\i0\fs24 \
+
+\f2\fs22 					
+\f4\i nofside
+\f2\i0  		which side? 1-left, 2-bottom, 3-right, 4-top
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i nbc1,nbc2
+\f2\i0  	range of application of boundary cond. in nodes.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i nbc
+\f2\i0 		type of boundary condition. See doc above.
+\f1\fs24 \
+
+\f2\fs22 					----------------------------------------------------------------
+\f1\fs24 \
+
+\f2\fs22 			Function of boundary conditions.
+\f1\fs24 \
+
+\f2\fs22 			
+\f4\i fbc(
+\f6\i0 x
+\f4\i ) = 
+\f3\b a
+\f4\b0  + 
+\f3\b b 
+\f6\i0\b0 x
+\f5  
+\f4\i + 
+\f3\b c 
+\f6\i0\b0 x
+\f4\i\fs18 \up14 2 
+\fs22 \up0 + (
+\f3\b d
+\f4\b0  cos (2
+\f6\i0 px
+\f5  
+\f3\i\b e
+\f4\b0 ) + 
+\f3\b f
+\f4\b0  sin (2
+\f6\i0 px
+\f5  
+\f3\i\b g
+\f4\b0 ))*exp(-(
+\f6\i0 x
+\f5  
+\f4\i - 
+\f3\b i
+\f4\b0 )
+\fs18 \up14 2 
+\f3\b\fs22 \up0 h
+\f4\b0\fs18 \up14 2 
+\fs22 \up0 )
+\f1\i0\fs24 \
+
+\f2\fs22 			where 
+\f6 x
+\f5  
+\f2 is non-dimensional. i.e. 
+\f6 x
+\f5  
+\f4\i = (node_in_segment - nbc1) / (nbc2 - 			nbc1)
+\f1\i0\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 nyhydro,pisos,iphsub,drosub,damp,vis
+\f2\i0\b0 	
+\f4\i\fs20 int,dbl,int,2 dbl
+\f2\i0\fs22  	
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					Winkler-type boundary condition, ie. the bottom boundary 					is open for flow passing through in and out. Effectively, the 					bottom is supported by an inviscid fluid.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i nyhydro
+\f2\i0  : 	0-no, 1-yes, 2-auto. If 2, the column of cells at
+\f1\fs24 \
+
+\f2\fs22 							the right boundary will be used for the 								reference hydrostatic pressure.
+\f1\fs24 \
+\pard\pardeftab720\li720\fi-720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					
+\f4\i pisos
+\f2\i0  : 	Hydorstatic pressure at compensation depth
+\f1\fs24 \
+
+\f2\fs22 							(used when 
+\f4\i nyhydro
+\f2\i0 =1).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					
+\f4\i iphsub
+\f2\i0  : 	substratum phase of the inviscid fluid.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i drosub
+\f2\i0  : 	additional density difference of the fluid.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i damp_vis
+\f2\i0  : 	(not used.)
+\f1\fs24 \
+
+\f2\fs22 					NOTE: Use 
+\f4\i nyhdro=2
+\f2\i0 , typically 
+\f4\i iphsub=8
+\f2\i0  (mantle phase)
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 g
+\f2\i0\b0 				
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Acceleration of gravity (m/sec\up14 2\up0 ).  (typically 9.81 or 10).
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; THERMAL CONDITIONS
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 i_prestress
+\f2\i0\b0  		
+\f4\i\fs20 int
+\f2\i0\fs22 	Let model equilibrate given initial state, boundaries, 					and conditions, by running model for 600,000 years before any
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 				BC changes are allowed (0-no, 1-yes).  Temperature, stress will
+\f1\fs24 \
+
+\f2\fs22 				redistribute, topography, roots will isostatically adjust.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 itherm
+\f2\i0\b0  			
+\f4\i\fs20 int
+\f2\i0\fs22 	Either 1-mech+therm, 2-no mech. NOTE: usually 
+\f4\i itherm=1
+\f2\i0 .
+\f1\fs24 \
+
+\f3\i\b\fs22 istress_therm
+\f2\i0\b0 		
+\f4\i\fs20 int
+\f2\i0\fs22 	Add THERMAL STRESSES (0-no, 1-yes).
+\f1\fs24 \
+
+\f3\i\b\fs22 ishearh
+\f2\i0\b0 			
+\f4\i\fs20 int
+\f2\i0\fs22 	Add SHEAR heating.
+\f1\fs24 \
+
+\f3\i\b\fs22 t_top
+\f2\i0\b0 				
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Surface temperature in Celsius. Boundary AND initial 						condition.
+\f1\fs24 \
+
+\f3\i\b\fs22 t_bot
+\f2\i0\b0   			
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Bottom temperature in Celsius. ONLY initial condition. (The
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					bottom BC is given by 
+\f4\i bot_bc
+\f2\i0  below.)
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 hs, hr 
+\f2\i0\b0 			
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	Radiogenic heating of crust:  W/kg (~1.e-9), 							Radiogenic folding depth: km.
+\f1\fs24 \
+
+\f3\i\b\fs22 itemp_bc, bot_bc
+\f2\i0\b0 	
+\f4\i\fs20 int, dbl 	
+\f2\i0\fs22 Thermal boundary conditions at the bottom (1-T, 2-						Flux).  
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					if 
+\f4\i itemp_bc
+\f2\i0  = 1, 
+\f4\i bot_bc
+\f2\i0  = temperature value in Celsius.
+\f1\fs24 \
+
+\f2\fs22 					if 
+\f4\i itemp_bc
+\f2\i0  = 2, 
+\f4\i bot_bc
+\f2\i0  = flux value in mW/m\up14 2\up0 .
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 temp_per, ix1t, ix2t, iy1t, iy2t
+\f2\i0\b0 	
+\f4\i dbl, 4 int
+\f2\i0 	Initial thermal perturbation, amplitude 								and location between rectangular Xleft, 								Xright, Ztop, Zbottom nodes.
+\f1\fs24 \
+\
+
+\f3\i\b\fs22 irtemp
+\f2\i0\b0 			
+\f4\i\fs20 int
+\f2\i0\fs22 	Predefined thermal distributions in a file? 0-no, 1-yes.
+\f1\fs24 \
+
+\f3\i\b\fs22 tempfile
+\f2\i0\b0 			
+\f4\i string
+\f2\i0 	Filename containing temperature distribution.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					When 
+\f4\i irtemp
+\f2\i0 =0, this line is read but not used.
+\f1\fs24 \
+
+\f2\fs22 					File format is one column of temperatures written in blocks 					of nz, looping over nx.  E.g.,
+\f1\fs24 \
+
+\f2\fs22 					[outer do i = 1,nx; inner do j=1,nz, read T(j,i) ]
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 time_scale
+\f2\i0\b0 			
+\f4\i dbl
+\f2\i0 	not used.
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; Initial temperature structure
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 iynts, tbos
+\f2\i0\b0 			
+\f4\i\fs20 int, dbl
+\f2\i0\fs22 	
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 				
+\f4\i iynts
+\f2\i0 :	1 - initialize temperature by 
+\f4\i igeotherm
+\f2\i0  (below).
+\f1\fs24 \
+
+\f2\fs22 					2 - initialize temperature by 
+\f4\i nzone_age
+\f2\i0  (below).
+\f1\fs24 \
+
+\f2\fs22 					Else - linear temperature profile.
+\f1\fs24 \
+
+\f2\fs22 				
+\f4\i tbos
+\f2\i0 : maximum or bottom temperature (only when 
+\f4\i iynts=1
+\f2\i0 ). 					If (
+\f4\i iynts
+\f2\i0  = 2) Initially variable thermal age continental and
+\f1\fs24 \
+
+\f2\fs22 					oceanic lithosphere across the box.
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 iax1,iay1,ibx1,iby1,icx1,icy1,idx1,idy1
+\f2\i0\b0  	
+\f4\i\fs20 8 int
+\f2\i0\fs22 	not used.
+\f1\fs24 \
+\
+
+\f3\i\b\fs22 nzone_age
+\f2\i0\b0  		
+\f4\i\fs20 int
+\f2\i0\fs22 	# zones of different age (max 20). Used when 
+\f4\i iynts=2
+\f2\i0 . 
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul age_1(i),hc(i),iph_col1(i),iph_col2(i),ixtb1(i),ixtb2(i)
+\f1\i0\b0\fs24 \ulnone \
+
+\f2\fs22 			
+\f4\i\fs20 2 dbl, 4 int
+\f2\i0\fs22 	
+\f4\i age_1(i)
+\f2\i0 	Thermal age (Myrs).
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i hc(i)
+\f2\i0 		Crustal thickness (km).
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i iph_col1(i)
+\f2\i0 	Crustal phase.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i iph_col2(i)
+\f2\i0 	Mantle phase.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i ixtb1(i)
+\f2\i0 	
+\f4\i X
+\f2\i0  nodes 1 (left side of zone in nodes).
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i ixtb2(i)
+\f2\i0 	
+\f4\i X
+\f2\i0  nodes 2 (right side of zone in nodes).
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ;  PHASES & RHEOLOGY
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 There are 15 phases (rock types) that are defined for this code.  Users can add 5 more. Users should not override these original 15 phases, because they are involved in phase changes (see 
+\f4\i newphase2marker.f90
+\f2\i0  for detail).
+\f1\fs24 \
+\
+
+\f2\fs22 	1.  basalt (not used)
+\f1\fs24 \
+
+\f2\fs22 	2.  continental crust			same as #6.
+\f1\fs24 \
+
+\f2\fs22 	3.  basalt (dunite) (oceanic crust)	same as #7.
+\f1\fs24 \
+
+\f2\fs22 	4.  olivine (mantle)			same as #8.
+\f1\fs24 \
+
+\f2\fs22 	5.  olivine+ (not used)
+\f1\fs24 \
+
+\f2\fs22 	6.  continental crust			same as #2.
+\f1\fs24 \
+
+\f2\fs22 	7.  basalt (dunite) (oceanic crust)	same as #3.
+\f1\fs24 \
+
+\f2\fs22 	8.  olivine (mantle)			same as #4.
+\f1\fs24 \
+
+\f2\fs22 	9.  serpentinite (weak mantle)	transformed from #4,#8 if underlying material 							is subducted oceanic crust (#3,#7,#11,#14). 							Will transform back to #4 when T-P conditions 							iare high enough.
+\f1\fs24 \
+
+\f2\fs22 	10. sediment #1 (not used)		reserved for erosion.
+\f1\fs24 \
+
+\f2\fs22 	11. sediment #2				generated by erosion.
+\f1\fs24 \
+
+\f2\fs22 	12. weak continental crust, 		transformed from continental crust (#2,#6) if							residing above oceanic crust (#3,#7,#11,#14).
+\f1\fs24 \
+
+\f2\fs22 	13. eclogite 				transformed from oceanic crust (#3,#7) when 
+\f1\fs24 \
+
+\f2\fs22 							T-P conditions are high enough.
+\f1\fs24 \
+
+\f2\fs22 	14. arc crust
+\f1\fs24 \
+
+\f2\fs22 	15. weak middle crust			transformed from continental crust (#3-7) if 
+\f1\fs24 \
+
+\f2\fs22 							stressed and heated. Disabled.
+\f1\fs24 \
+\
+
+\f2\fs22 Phase changes are activated and will take place among certain of the defined phases. 
+\f1\fs24 \
+
+\f2\fs22 (1) when oceanic subduction (#3-7-11-14) under continent (#2-6), this original continent crust 	becomes "weak". cont. crust 		2, 6	---->	12	weak crust 
+\f1\fs24 \
+
+\f2\fs22 (2) when oceanic crust (3-7-11) is subducted under overlying mantle (#4-8) (e.g., mantle wedge),  this overlying mantle will serpentinize.  This serpentinite will transform back to #4 when brought to greater depth.
+\f1\fs24 \
+
+\f2\fs22 		ocean mantle 		4, 8	----> 	9	serpentinite
+\f1\fs24 \
+
+\f2\fs22 		serpentinite		9	---->	4	mantle
+\f1\fs24 \
+
+\f2\fs22 (3) basalt (oceanic crust) will transform into eclogite 
+\f1\fs24 \
+
+\f2\fs22 		basalt (oceanic crust)	3,7	---->	13	eclogite
+\f1\fs24 \
+
+\f2\fs22 (4) erosion produces sediments at top layer.
+\f1\fs24 \
+
+\f2\fs22 		any phase at topmost layer	---->	11	sediment #2
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; Fundamental Rock Types 
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 nphase
+\f2\i0\b0 				
+\f4\i\fs20 int
+\f2\i0\fs22 	Number of Different Rheologies (up to 20 possible).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul irheol(i),_(i),den(i),alfa(i),beta(i),pln(i),acoef(i),eactiv(i),rl(i),rm(i), 
+\f1\i0\b0\fs24 \ulnone \
+
+\f2\fs22 	
+\f3\i\b \ul pls1(i),pls2(i),fric1(i),fric2(i),coh1(i),coh2(i),dilat1(i),dilat2(i), 	conduct(i),cp(i),ts(i),tl(i),tk(i),fk(i)
+\f1\i0\b0\fs24 \ulnone \
+
+\f2\fs22 			
+\f4\i\fs20 int, 24 dbl
+\f1\i0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f4\i\fs20 \cf0 	
+\fs22 irheol(i)
+\f2\i0 	Rheological condition for this phase (see below).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	_
+\f4\i (i)
+\f2\i0 		not used.
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i den(i)
+\f2\i0 		density, kg/m3
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i alfa(i)
+\f2\i0 		alpha - coeff. of thermal expansion (~3.0E-5).
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i beta(i)
+\f2\i0 	beta - compressibility (1/bulk modulus) = 0.
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i pln(i)
+\f2\i0 		n for viscosity power law 3\ul <\ulnone n\ul <\ulnone 5
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i acoef(i)
+\f2\i0 	A for viscosity power law
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i eactiv(i)
+\f2\i0 	E - activation energy
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i rl(i)
+\f2\i0 		Lame parameter: rl - lambda
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i rm(i)
+\f2\i0 		Lame parameter: rm - mu
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i pls1(i)
+\f2\i0 	Mohr-Coulomb: plastic strain of onset softening 
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i pls2(i)
+\f2\i0 	Mohr-Coulomb: plastic strain of saturated softening 
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i fric1(i)
+\f2\i0 	Mohr-Coulomb: friction angle before softening
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i fric2(i)
+\f2\i0 	Mohr-Coulomb: friction angle of saturated softening, in degree
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i coh1(i)
+\f2\i0 	Mohr-Coulomb: cohesion before softening
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i coh2(i)
+\f2\i0 	Mohr-Coulomb: cohesion of saturated softening, in Pa
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i fric1(i)
+\f2\i0 	Mohr-Coulomb: dilation angle before softening
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i fric2(i)
+\f2\i0 	Mohr-Coulomb: dilation angle of saturated softening, in degree
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i conduct(i)
+\f2\i0 	thermal conductivity
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i cp(i)
+\f2\i0 		heat capacity at constant pressure, J/(kg C)
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i ts(i)
+\f2\i0 		solidus temperature 
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i tl(i)
+\f2\i0 		liquidus temperature 
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i tk(i)
+\f2\i0 		latent heat of fusion temperature
+\f1\fs24 \
+
+\f2\fs22 	
+\f4\i fk(i)
+\f2\i0 		coeff of latent heat of fusion?
+\f1\fs24 \
+\
+
+\f2\fs22 ;  Rheological Condition for a phase (rock type):
+\f1\fs24 \
+
+\f2\fs22 ;
+\f4\i  irheol(i):
+\f2\i0 	 1- elastic,
+\f1\fs24 \
+
+\f2\fs22 ; 		 3- visco-elastic (Maxwell, Non-Newtonian) 
+\f1\fs24 \
+
+\f2\fs22 ; 		 6- elasto-plastic (Mohr-Coulomb) 
+\f1\fs24 \
+
+\f2\fs22 ;		11- visco-elasto-plastic (Mohr-Coulomb, Fixed Maxwell, Newtonian) 
+\f1\fs24 \
+
+\f2\fs22 ;		12- visco-elasto-plastic (Mohr-Coulomb, Maxwell, Non-Newtonian)
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; INITIAL PHASE DISTRIBUTION
+\f1\b0\fs24 \
+
+\f0\b\fs22 ; Define model rock type distribution via external file or by horizontal layers 
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 irphase
+\f2\i0\b0 				
+\f4\i\fs20 int
+\f2\i0\fs22 	Flag to take initial phase distribution from a file: 0-N, 1-Y.
+\f1\fs24 \
+
+\f3\i\b\fs22 phasefile
+\f2\i0\b0 			
+\f4\i string
+\f2\i0 	Filename containing phase distribution. 
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					If 
+\f4\i irphase
+\f2\i0 =0, this line is read but not used.
+\f1\fs24 \
+
+\f2\fs22 					One column of phase id by cell (not by node). 
+\f1\fs24 \
+
+\f2\fs22 					Vertical fast, horz slow dimensions.
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 mphase
+\f2\i0\b0 				
+\f4\i\fs20 int
+\f2\i0\fs22 	Main phase. The most abundant phase.
+\f1\fs24 \
+
+\f3\i\b\fs22 nphasl
+\f2\i0\b0 				
+\f4\i\fs20 int
+\f2\i0\fs22 	Number of horizontal layers for phases.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					Note: when 
+\f4\i nzone_age
+\f2\i0 >0, the phase structure is 						determined by 
+\f4\i iph_col1, iph_col2
+\f2\i0  there.
+\f1\fs24 \
+
+\f2\fs22 	
+\f3\i\b \ul ltop(i), lbottom(i), lphase(i)
+\f1\i0\b0\fs24 \ulnone \
+
+\f2\fs22 				
+\f4\i\fs20 3 int
+\f2\i0\fs22 	
+\f4\i ltop(i)
+\f2\i0 		vertical cells of top of this layer.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i lbottom(i)
+\f2\i0 	vertical cells of bototm of this layer.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i lphase(i)
+\f2\i0 	phase ID of this layer (between 1 ~ 
+\f4\i nphase
+\f2\i0 )
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; Define rock type anomolies.
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 		Geometries of inhomogeneities:	
+\f1\fs24 \
+
+\f2\fs22 			0 -    rectangular 
+\f1\fs24 \
+
+\f2\fs22 			1,2 - Gauss shape (not tested, don\'92t use)
+\f1\fs24 \
+
+\f2\fs22 			3 - diagonal line
+\f1\fs24 \
+
+\f2\fs22 			4 - diagonal line plus init. plastic strain
+\f1\fs24 \
+
+\f2\fs22 		if rectangular, upper left corner is ix1-iy1, lower right corner is ix2-iy2 (in 		cells).
+\f1\fs24 \
+
+\f2\fs22 		if diagonal line, ix1 < ix2, but the vertical iy1-iy2 can be any values, in order 		to define
+\f1\fs24 \
+
+\f2\fs22 		diagonal slope polarity (e.g., iy1>1y2 for dipping towards left).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 inhom
+\f2\i0\b0 				
+\f4\i\fs20 int
+\f2\i0\fs22 	Number of rock type inclusions (up to 9).
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f3\i\b \ul ix1(i), ix2(i), iy1(i), iy2(i), inphase(i), igeom(i), xinitaps
+\f1\i0\b0\fs24 \ulnone \
+
+\f2\fs22 			
+\f4\i\fs20 6 int, dbl
+\f2\i0\fs22 	
+\f4\i ix1(i)
+\f2\i0 		Inclusion left horizontal cell.  
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i ix2(i)
+\f2\i0 		Inclusion right horizontal cell.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i iy1(i)
+\f2\i0 		Inclusion top vertical cell
+\f4\i .
+\f1\i0\fs24 \
+
+\f2\fs22 					
+\f4\i iy2(i)
+\f2\i0 		Inclusion bottom vertical cell. 
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i inphase(i)
+\f2\i0 	phase ID of this inclusion (1~
+\f4\i nphase
+\f2\i0 ). 
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i igeom(i)
+\f2\i0 	geometry of inclusion (see code above). 
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i xinitaps	
+\f2\i0 	initial plastic strain. E.g., 15 = very weak. 
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 ten_off
+\f2\i0\b0 				
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Tension cut-off.   E.g., 1.E9
+\f1\fs24 \
+
+\f3\i\b\fs22 tau_heal
+\f2\i0\b0 			
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Linear healing parameter. Plastic strain decreases with 					time; 	time value (in sec). 1e15 = 30 myr.  For healing, use 					1e13 ~ 0.3 myr.
+\f1\fs24 \
+
+\f3\i\b\fs22 v_min, v_max, ivis_shape, efoldc 
+\f2\i0\b0 	Viscosity limits
+\f1\fs24 \
+
+\f3\i\b\fs22 			
+\f4\b0\fs20 2 dbl, int, dbl
+\f2\i0\fs22 	
+\f4\i v_min
+\f2\i0 		Minimum viscosity.   E.g., 1E19
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 						
+\f4\i v_max
+\f2\i0 	Maximum viscosity.   E.g., 3E27
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i  	ivis_shape
+\f2\i0 	Initial viscosity shape (0-2; see below)
+\f1\fs24 \
+
+\f2\fs22 						= 0  constant: 
+\f4\i visn = vis0
+\f1\i0\fs24 \
+
+\f2\fs22 						= 1  linear:    
+\f4\i visn = vis0+(yc-geoth)*efoldc
+\f1\i0\fs24 \
+
+\f2\fs22 						= 2  gaussian:  
+\f4\i visn = vis0*exp((yc-geoth)/efoldc)\up14 2
+\f1\i0\fs24 \up0 \
+
+\f2\fs22 						
+\f4\i efoldc
+\f2\i0 	folding depth of viscosity in meter.
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 igeotherm, g_x0, g_y0c, g_amplitude, g_width  	
+\f2\i0\b0 	
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 			
+\f4\i\fs20  int, 4 dbl
+\f2\i0\fs22 	
+\f4\i igeotherm
+\f2\i0 	0-constant, 1-gaussian, 2-linear
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i g_x0
+\f2\i0 		see below.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i g_y0c
+\f2\i0 		see below.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i g_amplitude
+\f2\i0 	see below.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i g_width  
+\f2\i0 	see below.
+\f1\fs24 \
+
+\f2\fs22 ; Used only in viscosity reset calculations when 
+\f4\i iynts=1
+\f2\i0  or 
+\f4\i irheol=11
+\f2\i0  (never used because usually 
+\f4\i irheol=12
+\f2\i0 ).  
+\f4\i igeotherm
+\f2\i0  used for ridge thermal condition (
+\f4\i iynts=1
+\f2\i0 ) and crust viscosity condition.
+\f1\fs24 \
+
+\f2\fs22 	;  =0	
+\f7\fs16 geoth = g_y0c
+\f1\fs24 \
+
+\f2\fs22 	;  =1	
+\f7\fs16 geoth = g_y0c + g_amplitude*exp(-((xc-g_x0)/g_width)**2.)
+\f1\fs24 \
+
+\f2\fs22 	;  =2	
+\f7\fs16 if (abs(g_x0-xc).lt.g_width) geoth = g_y0c+ g_amplitude*(1.-abs(g_x0-xc)/g_width)
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f7\fs16 \cf0 		if (abs(g_x0-xc).ge.g_width) geoth = g_y0c
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 ny_inject, nelem_inject, rate_inject 
+\f2\i0\b0 		Magma injection / Accretionary.  This 
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 								line for mid-ocean ridge problem. There
+\f1\fs24 \
+
+\f2\fs22 								are thermal parameters that are 
+\f1\fs24 \
+
+\f2\fs22 								hardcoded for this (
+\f4\i tcutoff_eclo
+\f2\i0 , etc.).
+\f1\fs24 \
+
+\f2\fs22 			
+\f4\i\fs20 2 int, dbl	
+\fs22 ny_inject
+\f2\i0 		0-no, 1-left, 2-center
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i nelem_inject
+\f2\i0 	vertical cell to inject.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i rate_inject
+\f2\i0 	
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; REMESHING
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 ny_rem, mode_rem, ntest_rem, angle_rem
+\f2\i0\b0 	
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 			
+\f4\i\fs20 3 int, dbl
+\f2\i0\fs22 	
+\f4\i ny_rem
+\f2\i0 		Activate remeshing? 0-no, 1-yes.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i mode_rem
+\f2\i0 		Mode
+\f1\fs24 \
+
+\f2\fs22 									=1 keep 4 sides as is. 
+\f1\fs24 \
+
+\f2\fs22 									=3 L,R,B restored to initial sides
+\f1\fs24 \
+
+\f2\fs22 										top as is.
+\f1\fs24 \
+
+\f2\fs22 									=11 L,R restored to initial sides,
+\f1\fs24 \
+
+\f2\fs22 										top,bottom as is.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i ntest_rem
+\f2\i0 		#time steps to test if remeshing needed.
+\f1\fs24 \
+
+\f2\fs22 					
+\f4\i angle_rem
+\f2\i0 		critical angle to trigger remeshing.
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 dx_rem
+\f2\i0\b0 				
+\f4\i\fs20 dbl
+\f2\i0\fs22 	remeshing criteria for 
+\f4\i mode_rem
+\f2\i0 =3 or 11
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					Normalized size = 
+\f4\i rxb0/(nx-1)
+\f2\i0 .  
+\f4\i dx_rem
+\f2\i0  = 0~1
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 topo_kappa, bottom_kappa
+\f2\i0\b0 	
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	Erosion diffusion of topography: diffusivity for 						top, bottom boundaries. Use 0 for no erosion, 1E-5 						for strong erosion.
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; PROCESS CONTROL
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 ! inertial mass scaling
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 idt_scale
+\f2\i0\b0 			
+\f4\i\fs20 int
+\f2\i0\fs22 	Inertial mass scaling. 	0-no scale for DYNAMICS. 
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 									1-scale for STATICS. 
+\f1\fs24 \
+
+\f2\fs22 									2-Automatic scaling. 
+\f4\i \ul USE THIS.
+\f1\i0\fs24 \ulnone \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 dt_scale, strain_inert
+\f2\i0\b0 		
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	control of time step size; 
+\f4\i dt_scale
+\f2\i0  is used if 
+\f4\i idt_scale
+\f2\i0  						=1.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					
+\f4\i strain_inert
+\f2\i0  is used if 
+\f4\i idt_scale
+\f2\i0 =2. Decrease it if the model
+\f1\fs24 \
+
+\f2\fs22 					gives NaN or Inf result.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 i_rey,xReyn
+\f2\i0\b0  		
+\f4\i\fs20 int,
+\f2\i0\fs22  
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Buoyancy + Reynolds (no-0,yes-1), Reynolds number
+\f1\fs24 \
+
+\f3\i\b\fs22 ifreq_rmasses
+\f2\i0\b0 		
+\f4\i\fs20 int
+\f2\i0\fs22 	Frequency of re-evaluation of real masses
+\f1\fs24 \
+
+\f3\i\b\fs22 ifreq_imasses
+\f2\i0\b0 		
+\f4\i\fs20 int
+\f2\i0\fs22 	Frequency of re-evaluation of inertial masses
+\f1\fs24 \
+
+\f3\i\b\fs22 ifreq_visc
+\f2\i0\b0 			
+\f4\i\fs20 int
+\f2\i0\fs22 	Freq. re-evaluation Non-Newtonian VISC (rheol.eq.12)
+\f1\fs24 \
+
+\f3\i\b\fs22 ifreq_avgsr
+\f2\i0\b0 		
+\f4\i\fs20 int
+\f2\i0\fs22 	navgsr - freq. averaging strain rate and dissipation
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; Acceleration Parameters (Cundall, 1982)
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 amul, ratl, ratu
+\f2\i0\b0 		
+\f4\i\fs20 3 dbl
+\f2\i0\fs22 	Internal adaptive time scaling.
+\f1\fs24 \
+
+\f3\i\b\fs22 frac, fracm
+\f2\i0\b0 		
+\f4\i\fs20 2 dbl
+\f2\i0\fs22 	calculate time step scales
+\f1\fs24 \
+
+\f3\i\b\fs22 n_boff_cutoff
+\f2\i0\b0 		
+\f4\i\fs20 int
+\f2\i0\fs22 	force balance cut-off.\cf2  \cf0  
+\f1\fs24 \
+
+\f3\i\b\fs22 movegrid, ndim
+\f2\i0\b0 		
+\f4\i\fs20 2 int
+\f2\i0\fs22 	
+\f4\i movegrid
+\f2\i0  	(0-N, 1-Y, 2-move under strain_rate. \ul Use =1\ulnone .
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					
+\f4\i ndim
+\f2\i0  		Dim: =2 normal cases; =3 in/out of plane 							stress.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 demf, mix_strain, mix_stress
+\f2\i0\b0 	
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 				
+\f4\i\fs20 dbl 2 int
+\f2\i0\fs22  	
+\f4\i demf
+\f2\i0 				damping coefficient
+\f1\fs24 \
+
+\f2\fs22 						Mixing Procedures:	
+\f4\i mix_strain
+\f2\i0  	0-no, 1-yes.
+\f1\fs24 \
+
+\f2\fs22 						
+\f4\i mix_stress
+\f2\i0 	0-no, 1-yes.
+\f1\fs24 \
+\
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; OUTPUT PARAMETERS    
+\f1\b0\fs24 \
+
+\f0\b\fs22 ; Time parameters below are in thousands years
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 time_max
+\f2\i0\b0 			
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Max time of calculations (in Kyrs).
+\f1\fs24 \
+
+\f3\i\b\fs22 dtout_screen
+\f2\i0\b0 		
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Time interval for screen output of calc. progress.
+\f1\fs24 \
+
+\f3\i\b\fs22 dtout_file
+\f2\i0\b0 			
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Time interval for file output (frequency of output)
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f0\b\fs22 \cf0 ; Variables to print to file:   0-no, 1-yes
+\f1\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 io_vel,io_srII,io_eII,io_aps,io_sII,io_sxx,io_szz,io_sxz,io_pres, &
+\f1\i0\b0\fs24 \
+
+\f3\i\b\fs22      io_temp,io_phase,io_visc,io_density,io_mark,io_src,io_diss,io_forc,io_hfl,io_topo
+\f1\i0\b0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 			
+\f4\i 19 int	
+\f1\i0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f4\i\fs22 \cf0 	io_vel
+\f2\i0 		Velocity (Vx,Vz) in cm/year. 					
+\f4\i vx.0, vz.0
+\f1\i0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f4\i io_srII	
+\f2\i0 	Deviatoric strain rate - second invariant, log
+\fs16 \dn14 10
+\fs22 \up0 (). 	
+\f4\i srII.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_eII
+\f2\i0 		Dev. strain - second invariant, first invariant.	      	
+\f4\i eII.0, eI.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_aps
+\f2\i0 	Total accumulated plastic strain				
+\f4\i aps.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_sII
+\f2\i0 		Dev. stress - sqrt(second invariant), in kbars		
+\f4\i sII.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_sxx
+\f2\i0 	Dev. stress \'96 xx component, in kbars			
+\f4\i sxx.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_szz
+\f2\i0 		Dev. stress \'96 zz component, in kbars			
+\f4\i szz.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_sxz
+\f2\i0 	Stress - xz (shear) component,  in kbars			
+\f4\i sxz.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_pres
+\f2\i0 	Pressure, in kbars							
+\f4\i pres.0
+\f1\i0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f4\i\fs22 \cf0 	io_temp
+\f2\i0 	Temperatur, in Celsius						
+\f4\i temp.0
+\f1\i0\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 	
+\f4\i io_phase
+\f2\i0 	Phase # (1-n as defined in input file).			
+\f4\i phase.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_visc
+\f2\i0 	Viscosity, log
+\fs16 \dn14 10
+\fs22 \up0 (Pa-s)						
+\f4\i visc.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_mark
+\f2\i0 	Density, in kg/m							
+\f4\i density.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_src
+\f2\i0 		Heat source.							
+\f4\i src.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_diss
+\f2\i0 	Energy dissipation = shearheat/dens/radiog_heat	
+\f4\i diss.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_forc
+\f2\i0 	Force: at left, right boundaries				
+\f4\i forc.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_hfl
+\f2\i0 		Surface heat flow (1-D)						
+\f4\i hfl.0
+\f1\i0\fs24 \
+
+\f2\fs22 	
+\f4\i io_topo	
+\f2\i0 Topography (1-D), in km					
+\f4\i topo.0
+\f1\i0\fs24 \
+\
+
+\f2\fs22 	; By default, these always produced:
+\f1\fs24 \
+
+\f2\fs22 			Time of each output panel	in sec				
+\f4\i time.0
+\f1\i0\fs24 \
+
+\f2\fs22 			Mesh coordinates (z,x)
+\fs16 \dn14 x
+\fs22 \up0 , (z,x)
+\fs16 \dn14 z
+\fs22 \up0 	in km				
+\f4\i mesh.0
+\f1\i0\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 lastout
+\f2\i0\b0 				
+\f4\i int
+\f2\i0 	Output for last step only (1) or each nout step (0)
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 						0=append, 1=override in output file.
+\f1\fs24 \
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f3\i\b\fs22 \cf0 dtsave_file
+\f2\i0\b0 			
+\f4\i\fs20 dbl
+\f2\i0\fs22 	Time interval for process saving (in Kyrs). For restart *.rs files.
+\f1\fs24 \
+
+\f3\i\b\fs22 lastsave
+\f2\i0\b0 				
+\f4\i int
+\f2\i0 	Saving the last step only (1) or each nsave step (0)
+\f1\fs24 \
+\
+\pard\pardeftab720\ri0\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 					To restart, 	(a) copy _contents.save -> _contents.rs
+\f1\fs24 \
+
+\f2\fs22 							(b) rerun flac with the same input parameters
+\f1\fs24 \
+\
+\pard\pardeftab720\sl360\slmult1\partightenfactor0
+
+\f2\fs22 \cf0 ; END OF FIL
+\f1\fs24 \
+}

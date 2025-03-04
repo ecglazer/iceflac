@@ -1,24 +1,23 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 '''Convert the binary marker output of flac to VTK (vtp) files.
 '''
 
-from __future__ import print_function
-import sys, os, glob
+import sys, os
 import numpy as np
 import flac
 from flac2vtk import vts_dataarray
 
 
 # filtering markers to only those within the domain bounds (in km)
-filtering = False
+filtering = True
 xmin = 300
 xmax = 700
 zmin = -50
 zmax = 100
 
 
-def filter_marker(x, z, age, phase, ID, a1, a2, ntriag):
+def filter_marker(x, z, age, phase, ID):
     # bool * bool is element-wise logical AND
     ind = (xmin <= x) * (x <= xmax) * (zmin <= z) * (z <= zmax)
     x = x[ind]
@@ -26,10 +25,7 @@ def filter_marker(x, z, age, phase, ID, a1, a2, ntriag):
     age = age[ind]
     phase = phase[ind]
     ID = ID[ind]
-    a1 = a1[ind]
-    a2 = a2[ind]
-    ntriag = ntriag[ind]
-    return x, z, age, phase, ID, a1, a2, ntriag
+    return x, z, age, phase, ID
 
 
 def main(path, start=1, end=-1):
@@ -41,30 +37,21 @@ def main(path, start=1, end=-1):
     if end == -1:
         end = fl.nrec
 
-    if start == -1:
-        vtplist = sorted(glob.glob('flacmarker.*.vtp'))
-        lastframe = int(vtplist[-1][11:-4]) if vtplist else 0
-        start = lastframe + 1
-
     for i in range(start, end+1):
-        x, z, age, phase, ID, a1, a2, ntriag = fl.read_markers(i)
+        x, z, age, phase, ID = fl.read_markers(i)
         if filtering:
-            x, z, age, phase, ID, a1, a2, ntriag = filter_marker(x, z, age, phase, ID, a1, a2, ntriag)
+            x, z, age, phase, ID = filter_marker(x, z, age, phase, ID)
         nmarkers = len(x)
 
-        print('Writing record #%d, model time=%.3e, %d markers' % (i, fl.time[i-1], nmarkers), end='\r')
-        sys.stdout.flush()
+        print 'Writing record #%d, model time=%.3e, %d markers' % (i, fl.time[i-1], nmarkers)
         fvtp = open('flacmarker.%06d.vtp' % i, 'w')
-        vtp_header(fvtp, nmarkers, fl.time[i-1], fl.steps[i-1])
+        vtp_header(fvtp, nmarkers)
 
         # point-based data
         fvtp.write('  <PointData>\n')
         vts_dataarray(fvtp, age, 'age', 1)
         vts_dataarray(fvtp, phase.astype(np.int32), 'phase', 1)
         vts_dataarray(fvtp, ID.astype(np.int32), 'ID', 1)
-        vts_dataarray(fvtp, a1, 'a1', 1)
-        vts_dataarray(fvtp, a2, 'a2', 1)
-        vts_dataarray(fvtp, ntriag.astype(np.int32), 'ntriag', 1)
         fvtp.write('  </PointData>\n')
 
         # point coordinates
@@ -80,25 +67,16 @@ def main(path, start=1, end=-1):
 
         vtp_footer(fvtp)
         fvtp.close()
-    print()
     return
 
 
-def vtp_header(f, npoints, time, step):
+def vtp_header(f, npoints):
     f.write(
 '''<?xml version="1.0"?>
 <VTKFile type="PolyData" version="0.1" byte_order="LittleEndian" compressor="vtkZLibDataCompressor">
 <PolyData>
-<FieldData>
-  <DataArray type="Float32" Name="TIME" NumberOfTuples="1" format="ascii">
-    {1}
-  </DataArray>
-  <DataArray type="Float32" Name="CYCLE" NumberOfTuples="1" format="ascii">
-    {2}
-  </DataArray>
-</FieldData>
 <Piece NumberOfPoints="{0}">
-'''.format(npoints, time, step))
+'''.format(npoints))
     return
 
 
@@ -112,38 +90,22 @@ def vtp_footer(f):
 
 
 if __name__ == '__main__':
-    doc = '''usage: flacmarker2vtk.py [-f xmin,xmax,zmin,zmax] path [frame_min [frame_max]]
-
-Processing flac marker output to VTK format.
-
-If frame_min is -1, start from the latest vtp file.
-If frame_max is not given, processing to latest frames
-If both frame_min and frame_max are not given, processing all frames
-
--f xmin,xmax,zmin,zmax: if provided, only output markers within the domain range (in km)
-'''
 
     if len(sys.argv) < 2:
-        print(doc)
+        print '''usage: flacmarker2vtk.py path [step_min [step_max]]
+
+Processing flac marker output to VTK format.
+If step_max is not given, processing to latest steps
+If both step_min and step_max are not given, processing all steps'''
         sys.exit(1)
 
-    try:
-        n = 0
-        if sys.argv[1] == '-f':
-            filtering = True
-            xmin, xmax, zmin, zmax = (float(f) for f in sys.argv[2].split(','))
-            n = 2
+    path = sys.argv[1]
 
-        path = sys.argv[n+1]
-
-        start = 1
-        end = -1
-        if len(sys.argv) >= n+3:
-            start = int(sys.argv[n+2])
-            if len(sys.argv) >= n+4:
-                end = int(sys.argv[n+3])
-    except:
-        print(doc, '\n')
-        raise
+    start = 1
+    end = -1
+    if len(sys.argv) >= 3:
+        start = int(sys.argv[2])
+        if len(sys.argv) >= 4:
+            end = int(sys.argv[3])
 
     main(path, start, end)

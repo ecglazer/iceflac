@@ -4,8 +4,9 @@
 
 subroutine init_cord
 use arrays
-use params
 include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
 
 dimension rmesh1(nx+nz)
 
@@ -33,46 +34,31 @@ end if
 ! Check dimensions for the mesh (number of elements and sizes)  
 call test_grid
 !  X - component 
-call mesh1 (x0,x0+rxbo,rmesh1,nx,nzonx,nelz_x,sizez_x) 
+call mesh1 (x0,x0+rxbo,rmesh1,nzonx,nelz_x,sizez_x) 
 
 do i = 1,nx
-    cord (:,i,1) =  rmesh1(i)
+    do j = 1,nz
+        cord (j,i,1) =  rmesh1(i)
+!        write(*,*) i,j,cord(j,i,1), x0, rxbo,nzonx,nelz_x,sizez_x
+    end do
 end do
-
-!  Z - component
-do j = 1,nz
-    call mesh1 (z0,z0+rzbo,rmesh1,nz,nzony,nelz_y,sizez_y)
-    cord (j,:,2) =  rmesh1(j)
+!  Z - component 
+!zb_a = 0.
+!zb_x0 = 150000.
+!zb_s = 25000.
+!write(*,*) 'INIT_CORD: Special lower boundary !!!'
+do i = 1,nx
+    do j = 1,nz
+    call mesh1 (z0,z0+rzbo,rmesh1,nzony,nelz_y,sizez_y) 
+         cord (j,i,2) =  rmesh1(j)
+!        write(*,*) i,j,cord(j,i,1),cord(j,i,2)
+    end do
 end do
-
-! topo perturbation
-do i = 1, inhom
-    if (igeom(i).eq.20) then
-        ! table mountain
-        amp = xinitaps(i)
-        cord(1, ix1(i):ix2(i), 2) = cord(1, ix1(i):ix2(i), 2) + amp
-    elseif (igeom(i).eq.21) then
-        ! trapzoidal mountain
-        amp = xinitaps(i)
-        do j = ix1(i), ix2(i)-1
-            cord(1,j,2) = cord(1,j,2) + amp*real(j-ix1(i))/(ix2(i)-ix1(i))
-        enddo
-        cord(1, ix2(i):iy1(i), 2) = cord(1, ix2(i):iy1(i), 2) + amp
-        do j = iy1(i)+1, iy2(i)
-            cord(1,j,2) = cord(1,j,2) + amp*real(iy2(i)-j)/(iy2(i)-iy1(i))
-        enddo 
-    endif
-enddo
-
 
 200 continue
 
-! min element width and thickness
-dxmin = minval(cord(1,2:nx,1) - cord(1,1:nx-1,1))
-dzmin = minval(cord(1:nz-1,1,2) - cord(2:nz,1,2))
-
-dhacc(:) = 0.d0
-extr_acc(1:nx-1) = 0.d0
+dx_init = abs(cord(1,2,1)-cord(1,1,1))
+dhacc(1:nx) = 0.d0
 
 return
 end
@@ -83,19 +69,19 @@ end
 !------Test for mesh dimensions (check size and num. of elem)
 
 subroutine test_grid
-use params
 include 'precision.inc'
+include 'params.inc'
 
 
 !- X direction
-sizesum=0.d0
+sizesum=0.
 nelsum =0
 do i = 1,nzonx
     sizesum = sizesum + sizez_x(i)
     nelsum =  nelsum  + nelz_x(i)
 end do
 
-if ( abs ((sizesum-1.0d0)) .gt. 1.d-4 ) then
+if ( abs ((sizesum-1.0)) .gt. 1.e-4 ) then
     call SysMsg('INIT_CORD: Sum of zones sizes is not correct.(X-direction)')
     stop 16
 endif
@@ -107,14 +93,14 @@ endif
 
 
 !- Y direction
-sizesum=0.d0
+sizesum=0.
 nelsum =0
 do i = 1,nzony 
     sizesum = sizesum + sizez_y(i)
     nelsum =  nelsum  + nelz_y(i)
 end do
 
-if ( abs (sizesum-1.d0) .gt. 1.d-4 ) then
+if ( abs (sizesum-1.) .gt. 1.e-4 ) then
     call SysMsg('INIT_CORD: Sum of zones sizes is not correct.(Y-direction)')
     stop 18
 endif
@@ -131,13 +117,12 @@ end
 !==========================================================================
 ! ONE-D mesh
 !==========================================================================
-subroutine mesh1 (x1,x2,xmesh,n,nzon,nelz,sizez)
-!$ACC routine seq
-implicit none
-double precision :: x1, x2, xmesh(n), sizez(nzon)
-integer :: n, nzon, nelz(nzon), k, i, nel
-double precision :: xbeg, xend, elemsize
+subroutine mesh1 (x1,x2,xmesh,nzon,nelz,sizez)
+include 'precision.inc'
+include 'params.inc'
 
+dimension sizez(10),nelz(10),xmesh(nx+nz)
+   
 nel = 1
 xmesh(nel) = x1
 

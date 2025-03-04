@@ -3,17 +3,27 @@
 
 subroutine rsflac
 use arrays
-use params
 USE marker_data
-implicit none
 
-integer, parameter :: kindr=8, kindi=4
-integer :: nrec, nwords, i, j, k, iph, n
-real*8 rtime, rdt, time_my
+include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
+
+
+parameter( kindr=8, kindi=4 )
+
+real(kindr), allocatable :: dum1(:),dum2(:,:)
+integer(kindi), allocatable :: dum11(:), idum2(:,:)
+real*8 rtime, rdt
 character*200 msg
 
+! TODO: include tracer information for restart
+if (iint_tracer.eq.1) then
+    stop 'Must disable tracers in restart'
+endif
+
 open( 1, file='_contents.rs', status='old' )
-read( 1, * ) nrec, nloop, time_my, nmarkers, i
+read( 1, * ) nrec, nloop, time_my, nmarkers, nmtracers
 close(1)
 
 
@@ -23,6 +33,7 @@ read (1,rec=nrec) rtime, rdt
 close (1)
 time = rtime
 dt = rdt
+time_t = time
 
 dvol = 0
 
@@ -33,16 +44,8 @@ open (1,file='cord.rs',access='direct',recl=nwords*kindr)
 read (1,rec=nrec) cord
 close (1)
 
-! min element width and thickness
-dxmin = minval(cord(1,2:nx,1) - cord(1,1:nx-1,1))
-dzmin = minval(cord(1:nz-1,1,2) - cord(2:nz,1,2))
-
 open (1,file='dhacc.rs',access='direct',recl=(nx-1)*kindr)
 read (1,rec=nrec) dhacc(1:nx-1)
-close (1)
-
-open (1,file='extr_acc.rs',access='direct',recl=(nx-1)*kindr)
-read (1,rec=nrec) extr_acc(1:nx-1)
 close (1)
 
 open (1,file='vel.rs',access='direct',recl=nwords*kindr) 
@@ -75,91 +78,160 @@ close (1)
 
 
 ! 2-D (nx-1)*(nz-1) arrays - elements defined
+allocate( dum2(nz-1,nx-1) )
+
 nwords = (nz-1)*(nx-1)
 
 ! Phases
+allocate( idum2(nz-1,nx-1) )
 open (1,file='phase.rs',access='direct',recl=nwords*kindr)
-read (1,rec=nrec) iphase
+read (1,rec=nrec) idum2
 close (1)
-
+iphase(1:nz-1,1:nx-1) = idum2(1:nz-1,1:nx-1)
+deallocate( idum2 )
 
 ! Check if viscous rheology present
-call check_visc_rheol
+ivis_present = 0
+do i = 1,nx-1
+    do j = 1, nz-1
+        iph = iphase(j,i)
+        if( irheol(iph).eq.3 .or. irheol(iph).ge.11 ) ivis_present = 1
+    end do
+end do
 
 ! Plastic strain
 open (1,file='aps.rs',access='direct',recl=nwords*kindr) 
-read (1,rec=nrec) aps
+read (1,rec=nrec) dum2
 close (1)
-
-! Magma
-open (1,file='fmagma.rs',access='direct',recl=nwords*kindr)
-read (1,rec=nrec) fmagma
-close (1)
+aps(1:nz-1,1:nx-1) = dum2(1:nz-1,1:nx-1)
 
 ! Heat sources
 open (1,file='source.rs',access='direct',recl=nwords*kindr) 
-read (1,rec=nrec) source
+read (1,rec=nrec) dum2
 close (1)
+source(1:nz-1,1:nx-1) = dum2(1:nz-1,1:nx-1)
+
+deallocate( dum2 )
+
+
+if (iint_marker.eq.1) then
+
 
 ! Markers
-nwords = nmarkers
-nrec = 1
-open (1,file='marker1.rs',access='direct',recl=nwords*kindr)
-read (1,rec=nrec) mark_a1(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_a2(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_x(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_y(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_age(1:nmarkers)
-nrec = nrec + 1
+nwords= nmarkers
+allocate (dum1(nmarkers))
+! Markers
+open (1,file='xmarker.rs',access='direct',recl=nwords*kindr)
+read (1,rec=nrec) dum1
 close (1)
+do i = 1,nmarkers
+mark(i)%x = dum1(i)
+enddo
 
-nrec = 1
-open (1,file='marker2.rs',access='direct',recl=nwords*kindi)
-read (1,rec=nrec) mark_dead(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_ntriag(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_phase(1:nmarkers)
-nrec = nrec + 1
-read (1,rec=nrec) mark_ID(1:nmarkers)
-nrec = nrec + 1
+
+open (1,file='ymarker.rs',access='direct',recl=nwords*kindr)
+read (1,rec=nrec) dum1
 close (1)
+do i = 1,nmarkers
+mark(i)%y = dum1(i)
+enddo
+
+
+open (1,file='xa1marker.rs',access='direct',recl=nwords*kindr)
+read (1,rec=nrec) dum1
+close (1)
+do i = 1,nmarkers
+mark(i)%a1 = dum1(i)
+enddo
+
+
+open (1,file='xa2marker.rs',access='direct',recl=nwords*kindr)
+read (1,rec=nrec) dum1
+close (1)
+do i = 1,nmarkers
+mark(i)%a2 = dum1(i)
+enddo
+
+
+open (1,file='xagemarker.rs',access='direct',recl=nwords*kindr)
+read (1,rec=nrec) dum1
+close (1)
+do i = 1,nmarkers
+mark(i)%age = dum1(i)
+enddo
+
+
+allocate(dum11(nmarkers))
+
+open (1,file='xIDmarker.rs',access='direct',recl=nwords*kindi)
+read (1,rec=nrec) dum11
+close (1)
+do i = 1,nmarkers
+mark(i)%ID = dum11(i)
+enddo
+
+
+open (1,file='xntriagmarker.rs',access='direct',recl=nwords*kindi)
+read (1,rec=nrec) dum11
+close (1)
+do i = 1,nmarkers
+mark(i)%ntriag = dum11(i)
+enddo
+
+open (1,file='xphasemarker.rs',access='direct',recl=nwords*kindi)
+read (1,rec=nrec) dum11
+close (1)
+do i = 1,nmarkers
+mark(i)%phase = dum11(i)
+enddo
+
+open (1,file='xdeadmarker.rs',access='direct',recl=nwords*kindi)
+read (1,rec=nrec) dum11
+close (1)
+do i = 1,nmarkers
+mark(i)%dead = dum11(i)
+enddo
+
+deallocate(dum11)
 
 ! recount marker phase
-mark_id_elem(:,:,:) = 0
-nmark_elem(:,:) = 0
-print *, '# of markers:', nmarkers
+nphase_counter(:,:,:) = 0
+ntopmarker(:) = 0
+itopmarker(:,:) = 0
+print *, nmarkers
 do n = 1, nmarkers
-    if(mark_dead(n) .eq. 0) cycle
+    if(mark(n)%dead .eq. 0) cycle
 
-     if(mark_ntriag(n).lt.1 .or. mark_ntriag(n).gt.2*(nx-1)*(nz-1)) then
-         print *, 'Wrong marker ntriag', mark_ID(n), mark_ntriag(n)
+     if(mark(n)%ntriag.lt.1 .or. mark(n)%ntriag.gt.2*(nx-1)*(nz-1)) then
+         print *, 'Wrong marker ntriag', mark(n)%ID, mark(n)%ntriag
          stop 999
      endif
 
     ! from ntriag, get element number
-    k = mod(mark_ntriag(n) - 1, 2) + 1
-    j = mod((mark_ntriag(n) - k) / 2, nz-1) + 1
-    i = (mark_ntriag(n) - k) / 2 / (nz - 1) + 1
+    k = mod(mark(n)%ntriag - 1, 2) + 1
+    j = mod((mark(n)%ntriag - k) / 2, nz-1) + 1
+    i = (mark(n)%ntriag - k) / 2 / (nz - 1) + 1
 
-    !if(mark_ntriag(n) .ne. 2 * ( (nz-1)*(i-1)+j-1) + k) write(*,*), mark_ntriag(n), i,j,k
+    !if(mark(n)%ntriag .ne. 2 * ( (nz-1)*(i-1)+j-1) + k) write(*,*), mark(n)%ntriag, i,j,k
 
-    if(nmark_elem(j,i) == max_markers_per_elem) then
-        write(msg,*) 'Too many markers at element:', i, j, nmark_elem(j,i)
-        call SysMsg(msg)
-        cycle
-    endif
+    if(j == 1) then
+        if(ntopmarker(i) == max_markers_per_elem) then
+            write(msg,*) 'Too many markers at surface elements:', i, ntopmarker(i)
+            call SysMsg(msg)
+            cycle
+        endif
+        ! recording the id of markers belonging to surface elements
+        ntopmarker(i) = ntopmarker(i) + 1
+        itopmarker(ntopmarker(i), i) = n + 1
+    end if
 
-    ! recording the id of markers belonging to the element
-    nmark_elem(j, i) = nmark_elem(j, i) + 1
-    mark_id_elem(nmark_elem(j, i), j, i) = n
+    nphase_counter(mark(n)%phase,j,i) = nphase_counter(mark(n)%phase,j,i) + 1
+
 enddo
 
 call marker2elem
+
+endif
 
 ! Pressure at the bottom: pisos 
 if( nyhydro .eq. 2 ) then
@@ -167,36 +239,20 @@ if( nyhydro .eq. 2 ) then
     read(1,*) pisos
     close (1)
 endif
-!$ACC update device(pisos) async(1)
 
 ! Calculate AREAS (Important: iphase is needed to calculate area!)
 call init_areas
 
-! Boundary conditions
-call init_bc
-
-temp0 = temp
-shrheat = 0
-sshrheat = 0
-dtopo = 0
-extrusion = 0
-fmelt = 0
-se2sr = 1d-16
-e2sr = 1d-16
-
-call update_acc
-
 ! Distribution of REAL masses to nodes
 call rmasses
 
-if( ivis_present.eq.1 ) call init_visc
+! Boundary conditions
+call init_bc
 
 ! Inertial masses and time steps (elastic, maxwell and max_thermal)
 call dt_mass
-
-! Initiate parameters for stress averaging
-dtavg=0
-nsrate=-1
+! readjust the time step for dynamic cases
+call dt_adjust
 
 return
 end

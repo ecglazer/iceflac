@@ -1,9 +1,9 @@
 subroutine outmarker
 USE marker_data
-use arrays
-use params
 
 include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
 parameter( kindr=4, kindi=4 )
 real(kindr) D1d(nmarkers)
 integer(kindi) D1i(nmarkers)
@@ -11,9 +11,9 @@ integer(kindi) D1i(nmarkers)
 character*100 fn
 
 call bar2euler
-!$ACC wait
 
 nrec = 0
+D1d = 0.
 ! define record number and write it to contents
 if( lastout .eq. 1 ) then
     nrec = 1
@@ -31,65 +31,56 @@ else
     nrec = nrec + 1
     backspace(1) ! Neede for further writing since EOF has been reached.
 endif
-write( 1, '(i6,1x,i8,1x,i8,1x,f10.6)' ) nrec, nloop,nmarkers, time/sec_year/1.d6
+write( 1, '(i6,1x,i8,1x,i8,1x,f7.3)' ) nrec, nloop,nmarkers, time/sec_year/1.e6
 close(1)
 
 !! Since the number of markers changes with time, the marker data cannot be
 !! output as a single unformatted file. Output different files for each record.
 
 ! Coordinates  [km]
-nwords = nmarkers
-write(fn,'(A,I6.6,A)') 'marker1.', nrec, '.0'
-open (1,file=fn,access='direct',recl=nwords*kindr)
-
+nwords = nmarkers 
 do i = 1, nmarkers
-    D1d(i)= real(mark_x(i) * 1d-3)
+    D1d(i)= real(mark(i)%x * 1e-3)
 enddo
+write(fn,'(A,I6.6,A)') 'markx.', nrec, '.0'
+open (1,file=fn,access='direct',recl=nwords*kindr)
 write (1,rec=1) D1d
+close (1)
 
 do i = 1,nmarkers
-    D1d(i)= real(mark_y(i) * 1d-3)
+    D1d(i)= real(mark(i)%y * 1e-3)
 enddo
-write (1,rec=2) D1d
+write(fn,'(A,I6.6,A)') 'marky.', nrec, '.0'
+open (1,file=fn,access='direct',recl=nwords*kindr)
+write (1,rec=1) D1d
+close (1)
 
 ! Age [Myrs]
 do i = 1,nmarkers
-    D1d(i)= real(mark_age(i) / sec_year / 1.d6)
+    D1d(i)= real(mark(i)%age / sec_year / 1.e6)
 enddo
-write (1,rec=3) D1d
-
-! Barycentric coordinates
-do i = 1,nmarkers
-    D1d(i)= real(mark_a1(i))
-enddo
-write (1,rec=4) D1d
-
-do i = 1,nmarkers
-    D1d(i)= real(mark_a2(i))
-enddo
-write (1,rec=5) D1d
-
+write(fn,'(A,I6.6,A)') 'markage.', nrec, '.0'
+open (1,file=fn,access='direct',recl=nwords*kindr)
+write (1,rec=1) D1d
 close (1)
 
 
-write(fn,'(A,I6.6,A)') 'marker2.', nrec, '.0'
-open (1,file=fn,access='direct',recl=nwords*kindi)
-
+D1i = 0
 do l = 1,nmarkers
-    D1i(l)= mark_dead(l)
+    D1i(l)= mark(l)%phase
 enddo
+write(fn,'(A,I6.6,A)') 'markphase.', nrec, '.0'
+open (1,file=fn,access='direct',recl=nwords*kindr)
 write (1,rec=1) D1i
+close (1)
+
 
 do l = 1,nmarkers
-    D1i(l)= mark_phase(l)
+    D1i(l)= mark(l)%dead
 enddo
-write (1,rec=2) D1i
-
-do l = 1,nmarkers
-    D1i(l)= mark_ntriag(l)
-enddo
-write (1,rec=3) D1i
-
+write(fn,'(A,I6.6,A)') 'markdead.', nrec, '.0'
+open (1,file=fn,access='direct',recl=nwords*kindr)
+write (1,rec=1) D1i
 close (1)
 
 return

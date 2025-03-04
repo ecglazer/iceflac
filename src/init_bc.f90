@@ -4,8 +4,9 @@
 subroutine init_bc
 
   use arrays
-  use params
   include 'precision.inc'
+  include 'arrays.inc'
+  include 'params.inc'
   !
   !      ---- bc(nh*2)-for each nodal degree-of-freedom this is assigned zero
   !      value,unless a boundary condition is applied,in which case it is
@@ -15,10 +16,10 @@ subroutine init_bc
   !      degree-of-freedom with no applied boundary conditions ,and unity
   !      for an applied boundary condition.
   !
-  bc = 0.d0
+  bc = 0.
   ncod = 0
-  bcstress = 0.d0
-  nopbou = 0
+  bcstress = 0.
+  nopbou = 0  
   ncodbou = 0
   nebou = 0
 
@@ -56,9 +57,16 @@ subroutine init_bc
 
   nnop = 0
   do i = 1, nofbc
-      ! # of bc nodes
-      ndbc = nbc2(i) - nbc1(i) +1
-
+      if(i.gt.1) then
+          if (nbc(i).eq.nbc(i-1).and.nofside(i).eq.nofside(i-1)) then
+              ndbc1 = ndbc
+              ndbc = (ndbc)+nbc2(i) - nbc1(i) + 1
+          else
+              ndbc = nbc2(i) - nbc1(i) + 1
+          endif
+      else
+          ndbc = nbc2(i) - nbc1(i) +1
+      endif
       !
       ! Number of bc for stresses
       !
@@ -80,17 +88,23 @@ subroutine init_bc
           x2 = cord ( nbc2(i),1, 2)
 
           do n = 1,ndbc
-              numbp = n + nbc1(i) - 1
+              k = i
+              if(i.gt.1) then
+                  if(nbc(i).eq.nbc(i-1).and.nofside(i).eq.nofside(i-1).and.n.le.ndbc1)then
+                      k=i-1
+                  endif
+              endif
+              numbp  = n   
               x  = (cord (numbp,1,2)  - x1)/(x2-x1)
               if (nbc(i).eq.1.or.nbc(i).eq.10.or.nbc(i).eq.30)  &
-                   call velbc (i,numbp,x,0)
+                   call velbc (k,numbp,x)  
 
               if (nbc(i).eq.2.or.nbc(i).eq.20.or.nbc(i).eq.40) then
                   nnop = nnop + 1
-                  numbp1 = numbp + 1
+                  numbp1 = n + 1
                   xn = (cord (numbp1,1,2) - x1)/(x2-x1)
-                  xa = 0.5d0 * (x+xn)
-                  call stressbc (i,nnop,numbp,numbp1,xa)  
+                  xa = 0.5 * (x+xn)
+                  call stressbc (i,nnop,numbp,numbp1,xa)
               endif
 
               if ((nbc(i).eq.1.or.nbc(i).eq.10).and.bca(i).gt.0) then
@@ -108,16 +122,22 @@ subroutine init_bc
           x2 = cord (nz, nbc2(i), 1)
 
           do n = 1,ndbc
-              numbp = n + nbc1(i) - 1
+              k = i
+              if(i.gt.1) then
+                  if(nbc(i).eq.nbc(i-1).and.nofside(i).eq.nofside(i-1).and.n.le.ndbc1)then
+                      k=i-1
+                  endif
+              endif
+              numbp  = n
               x = (cord (nz,numbp,1) - x1)/(x2-x1)
 
               if (nbc(i).eq.1.or.nbc(i).eq.10.or.nbc(i).eq.30)  &
-                   call velbc (i,numbp,x,0)
+                   call velbc (k,numbp,x)
               if (nbc(i).eq.2.or.nbc(i).eq.20.or.nbc(i).eq.40) then
                   nnop = nnop + 1
                   numbp1 = n + 1
                   xn = (cord (nz,numbp1,1) - x1)/(x2-x1)
-                  xa = 0.5d0 * (x+xn)
+                  xa = 0.5 * (x+xn)
                   call stressbc (i,nnop,numbp,numbp1,xa)
               endif
 
@@ -134,17 +154,24 @@ subroutine init_bc
           x2 = cord ( nbc2(i),nx, 2)
 
           do n = 1,ndbc
-              numbp = n + nbc1(i) - 1
+              k = i
+              if(i.gt.1) then
+                  if(nbc(i).eq.nbc(i-1).and.nofside(i).eq.nofside(i-1).and.n.le.ndbc1)then
+                      k=i-1
+                  endif
+              endif
+
+              numbp  =  n
               x  = (cord (numbp,nx,2) - x1)/(x2-x1)
 
               if (nbc(i).eq.1.or.nbc(i).eq.10.or.nbc(i).eq.30)  &
-                   call velbc (i,numbp,x,0)
+                   call velbc (k,numbp,x)
 
               if (nbc(i).eq.2.or.nbc(i).eq. 20.or.nbc(i).eq.40) then
                   nnop = nnop + 1
-                  numbp1 = numbp + 1
+                  numbp1 = n + 1
                   xn = (cord (numbp1,nx,2) - x1)/(x2-x1)
-                  xa = 0.5d0 * (x+xn)
+                  xa = 0.5 * (x+xn)
                   call stressbc (i,nnop,numbp,numbp1,xa)
               endif
 
@@ -162,52 +189,38 @@ subroutine init_bc
           x2 = cord ( 1,nbc2(i), 1)
 
           do n = 1,ndbc
-              numbp = n + nbc1(i) - 1
+              k = i
+              if(i.gt.1) then
+                  if(nbc(i).eq.nbc(i-1).and.nofside(i).eq.nofside(i-1).and.n.le.ndbc1)then
+                      k=i-1
+                  endif
+              endif
+
+              numbp  = n
               x = (cord (1,numbp,1) - x1)/(x2-x1)
 
               if (nbc(i).eq.1.or.nbc(i).eq.10.or.nbc(i).eq.30)   &
-                   call velbc (i,numbp,x,0)
+                   call velbc (k,numbp,x)
 
               if (nbc(i).eq.2.or.nbc(i).eq.20.or.nbc(i).eq.40) then
                   nnop = nnop + 1
-                  numbp1 = numbp + 1
+                  numbp1 = n + 1
                   xn = (cord (1,numbp1,1) - x1)/(x2-x1)
-                  xa = 0.5d0 * (x+xn)
+                  xa = 0.5 * (x+xn)
                   call stressbc (i,nnop,numbp,numbp1,xa)
               endif
 
           enddo
       endif
 
-      !-------------------------------------------------------------
-      !        middle
-      !-------------------------------------------------------------
-
-      if ( nofside(i) .eq. 5 ) then
-
-        if (nbc(i).ne.10) stop 55
-        do n = 1,ndbc
-
-            numbp = n + nbc1(i) - 1
-            do mid_j = 1, min(jmoho(i)*2,nx) ! from surface to 2x element thickness of crust
-                x1 = cord ( 1,numbp, 2)
-                x2 = cord ( min(jmoho(i)*2,nx),numbp, 2)
-
-                x  = (cord (mid_j,numbp,2) - x1)/(x2-x1)
-
-                call velbc (i,numbp,x,mid_j)
-            enddo
-
-        enddo
-      endif
+      ! viscosity-dependent velocity profile
+      if (nbc(i).eq.50) call velbc_visc(i)
 
   enddo
   !
   ! Maximum node with applied stress
   !
   nopbmax = nnop
-  !$ACC update device(incoming_left,incoming_right,nopbmax) async(1)
-
   !
   ! Maximum applied velocity and/or
   ! Convert constant strain INTERNAL B.C.
@@ -222,12 +235,11 @@ end subroutine init_bc
 subroutine stressbc (i,n,numbp,numbp1,x)      
 
   use arrays
-  use params
-  implicit none
+  include 'precision.inc'
+  include 'arrays.inc'
+  include 'params.inc'
 
-  integer :: i, n, numbp, numbp1
-  double precision :: x, fun
-  double precision, parameter :: pi2 = 2.d0 * 3.14159d0
+  pi2 = 2. * 3.14159
 
   fun =  bca(i) + bcb(i)*x + bcc(i)*x*x  & 
        + (bcd(i)*cos (pi2*bce(i)*x) + bcf(i)*sin (pi2*bcg(i)*x))  &
@@ -278,16 +290,14 @@ subroutine stressbc (i,n,numbp,numbp1,x)
 end subroutine stressbc
 
 !----------------------------------------------------------------
-subroutine velbc (i,numbp,x,mid_j) 
+subroutine velbc (i,numbp,x)  
 
   use arrays
-  use params
-  implicit none
-  integer :: i, numbp, mid_j
-  double precision :: x
-  double precision, parameter :: pi2 = 2.d0 * 3.14159d0
-  double precision :: fun
-  integer :: ii1, jj1
+  include 'precision.inc' 
+  include 'arrays.inc'
+  include 'params.inc'
+
+  pi2 = 2. * 3.14159 
 
   fun =  bca(i) + bcb(i)*x + bcc(i)*x*x   & 
        + (bcd(i)*cos (pi2*bce(i)*x) + bcf(i)*sin (pi2*bcg(i)*x))    &
@@ -309,14 +319,10 @@ subroutine velbc (i,numbp,x,mid_j)
       ii1 = numbp 
       jj1 = 1 
   endif
-  if (nofside(i).eq.5) then
-      ii1= numbp
-      jj1= mid_j
-  endif
   ! - x component 
   if (nbc(i) .eq. 10 ) then  
       ncod(jj1,ii1,1) = 1
-      if (abs(bc(jj1,ii1,1)).gt.0.d0) then
+      if (abs(bc(jj1,ii1,1)).gt.0.) then
           fun = bc(jj1,ii1,1)
       endif
       bc(jj1,ii1,1) = fun  
@@ -340,11 +346,13 @@ subroutine velbc (i,numbp,x,mid_j)
   return
 end subroutine velbc
 
+
 subroutine velbc_visc(i)
 
   use arrays
-  use params
   include 'precision.inc'
+  include 'arrays.inc'
+  include 'params.inc'
 
   if (nofside(i).eq.1) then
       ii = 1
@@ -356,20 +364,20 @@ subroutine velbc_visc(i)
       stop 'Wrong side for velbv_visc'
   endif
 
-  tmp = 0.d0
+  tmp = 0.
   do jj = nbc1(i), nbc2(i)
       if(jj == 1) cycle
-      tmp = tmp + (cord(jj-1,ii,2) - cord(jj,ii,2)) / min(Eff_visc(jj-1,ie), 3d23)
+      tmp = tmp + (cord(jj-1,ii,2) - cord(jj,ii,2)) / min(Eff_visc(jj-1,ie), 3e23)
   enddo
   tmp1 = tmp
   tmp = bca(i) / tmp
 
   do jj = nbc1(i), nbc2(i)
       if(jj > 1) then
-          tmp1 = tmp1 - (cord(jj-1,ii,2) - cord(jj,ii,2)) / min(Eff_visc(jj-1,ie), 3d23)
-          write(*,*) jj, min(Eff_visc(jj-1,ie),3d23), tmp1 * tmp
+          tmp1 = tmp1 - (cord(jj-1,ii,2) - cord(jj,ii,2)) / min(Eff_visc(jj-1,ie), 3e23)
+          write(*,*) jj, min(Eff_visc(jj-1,ie),3e23), tmp1 * tmp
       else
-          write(*,*) jj, 3d23, tmp1 * tmp
+          write(*,*) jj, 3e23, tmp1 * tmp
       end if
       ncod(jj,ii,1) = 1
       bc(jj,ii,1) = tmp1 * tmp
@@ -385,10 +393,11 @@ end subroutine velbc_visc
 subroutine vbcal 
 
   use arrays
-  use params
   include 'precision.inc'
+  include 'arrays.inc'
+  include 'params.inc'
 
-  vbc = 0.d0
+  vbc = 0.
 
   do i = 1,nx
       do j = 1,nz
@@ -398,13 +407,14 @@ subroutine vbcal
           enddo
       enddo
   enddo
-  if(vbc.eq.0.d0) vbc=1.d-10
+  if(vbc.eq.0.) vbc=1.e-10
 
   open(13,file = 'vbc.s')
   write(13,*) vbc
   close(13)
-  !$ACC update device(vbc) async(1)
-
+  if (ny_inject.gt.0) then
+      vbc = vbc -0.5*rate_inject
+  endif
   return
 end subroutine vbcal
 

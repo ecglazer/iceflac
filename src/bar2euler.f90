@@ -1,57 +1,51 @@
 subroutine bar2euler
 use arrays
-use params
 USE marker_data
 
 include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
+common /markers/ xmpt(2,3,mnz*mnx*2)
 double precision :: shp2(2,3,2)
 
 ! calculate the new paramters for the triangles
-!$ACC parallel loop private(shp2) async(1)
-!$OMP parallel do private(shp2)
-do i = 1 , nmarkers
-  if (mark_dead(i).eq.0) cycle
-  n = mark_ntriag(i)
-  k = mod(n-1, 2) + 1
-  jj = mod((n - k) / 2, nz-1) + 1
-  ii = (n - k) / 2 / (nz - 1) + 1
-  ba1 = mark_a1(i)
-  ba2 = mark_a2(i)
-  ba3 = 1.0d0 - ba1 - ba2
 
-  if (k .eq. 1) then
-    i1 = ii
-    i2 = ii
-    i3 = ii + 1
-    j1 = jj
-    j2 = jj + 1
-    j3 = jj
-  else
-    i1 = ii + 1
-    i2 = ii
-    i3 = ii + 1
-    j1 = jj
-    j2 = jj + 1
-    j3 = jj + 1
-  endif
-
-  ! interpolate nodal values to the marker
-  x = cord(j1,i1,1)*ba1 + cord(j2,i2,1)*ba2 + cord(j3,i3,1)*ba3
-  y = cord(j1,i1,2)*ba1 + cord(j2,i2,2)*ba2 + cord(j3,i3,2)*ba3
-  mark_x(i) = x
-  mark_y(i) = y
+!$OMP parallel private(i,j,n,shp2,ba1,ba2,x,y)
+!$OMP do
+do i = 1 , nx-1
+    do j = 1 , nz-1
+        call shape_functions(j, i, shp2)
+        n = 2 * ( (nz-1)*(i-1)+j-1) + 1
+        xmpt(:,:,n:n+1) = shp2(:,:,:)
+    enddo
 enddo
-!$OMP end parallel do
+!$OMP end do
+
+
+!$OMP do
+do i = 1 , nmarkers
+     if (mark(i)%dead.eq.0) cycle
+     n = mark(i)%ntriag
+     ba1 = mark(i)%a1 
+     ba2 = mark(i)%a2 
+     ! Calculate eulerian from barycentic coordinates
+     call bar2xy(ba1, ba2, xmpt(:,:,n), x, y)
+     mark(i)%x = x
+     mark(i)%y = y
+enddo
+!$OMP end do
+!$OMP end parallel
 return
 end subroutine bar2euler
 
 
 subroutine shape_functions(j, i, shp2)
-  !$ACC routine seq
   use arrays
 
   include 'precision.inc'
+  include 'params.inc'
   double precision, intent(out) :: shp2(2,3,2)
+
   do k = 1 , 2
       if (k.eq.1) then
           x1 = cord(j  ,i  ,1)
@@ -90,7 +84,6 @@ end subroutine shape_functions
 !
 ! solve for x and y
 subroutine bar2xy(ba1, ba2, shp, x, y)
-  !$ACC routine seq
   use arrays
 
   include 'precision.inc'

@@ -1,12 +1,11 @@
 subroutine euler2bar(x,y,bar1,bar2,ntr,ii,jj,inc)
-!$ACC routine seq
-!$ACC routine(check_inside) seq
 
 use arrays
-use params
 include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
 
-!character*200 msg
+character*200 msg
 
 ! find the triangle in which the marker belongs
 
@@ -17,10 +16,17 @@ call check_inside(x,y,bar1,bar2,ntr,i,j,inc)
 if(inc .eq. 1) return
 
 ! search the neighboring elem
-n1 = 2
-do j = max(1, jj-n1), min(nz-1, jj+n1)
-    do i = max(1, ii-n1), min(nx-1, ii+n1)
-        if (i == ii .and. j == jj) cycle  ! already checked
+ibeg = ii-2
+iend = ii+2
+jbeg = jj-2
+jend = jj+2
+if (ibeg.le.0) ibeg = 1
+if (jbeg.le.0) jbeg = 1
+if (iend.ge.nx) iend = nx-1
+if (jend.ge.nz) jend = nz-1
+
+do j = jbeg, jend
+    do i = ibeg ,iend
         call check_inside(x,y,bar1,bar2,ntr,i,j,inc)
         if(inc .eq. 1) then
             ii = i
@@ -29,36 +35,6 @@ do j = max(1, jj-n1), min(nz-1, jj+n1)
         endif
     enddo
 enddo
-
-n2 = 6
-do j = max(1, jj-n2), min(nz-1, jj+n2)
-    do i = max(1, ii-n2), min(nx-1, ii+n2)
-        if (abs(i - ii) <= n1 .and. abs(j - jj) <= n1) cycle  ! already checked
-        call check_inside(x,y,bar1,bar2,ntr,i,j,inc)
-        if(inc .eq. 1) then
-            ii = i
-            jj = j
-            return
-        endif
-    enddo
-enddo
-
-n3 = 12
-do j = max(1, jj-n3), min(nz-1, jj+n3)
-    do i = max(1, ii-n3), min(nx-1, ii+n3)
-        if (abs(i - ii) <= n2 .and. abs(j - jj) <= n2) cycle  ! already checked
-        call check_inside(x,y,bar1,bar2,ntr,i,j,inc)
-        if(inc .eq. 1) then
-            ii = i
-            jj = j
-            return
-        endif
-    enddo
-enddo
-
-! More extensive search
-! disabled since most models won't need this
-if(.false.) then
 
 ! search all surface elem
 do i = 1, nx-1
@@ -79,15 +55,14 @@ do j = 1, nz-1
         if(inc .eq. 1) then
             ! If the marker is found, that means its current element is
             ! to far away from its original element
-            !!!write(msg,*) 'Found at (i,j)', i, j, ' Might need more frequent remeshing?'
-            !!!call SysMsg(msg)
+            write(msg,*) 'Found at (i,j)', i, j, ' Might need more frequent remeshing?'
+            call SysMsg(msg)
             ii = i
             jj = j
             return
         endif
     enddo
 enddo
-endif
 
 inc = 0
 return
@@ -96,11 +71,10 @@ end subroutine euler2bar
 
 
 subroutine check_inside(x,y,bar1,bar2,ntr,i,j,inc)
-  !$ACC routine seq
   use arrays
-  use params
 
   include 'precision.inc'
+  include 'params.inc'
 
   dimension xxmpt(2,3)
 
@@ -142,7 +116,7 @@ subroutine check_inside(x,y,bar1,bar2,ntr,i,j,inc)
       bar2 = xxmpt(2,1) + xxmpt(2,2)*x + y*xxmpt(2,3)
 
       ! found the triangle
-      if(bar1 >= 0.0d0 .and. bar2 >= 0.0d0 .and. bar1+bar2 <= 1.0d0) then
+      if(bar1 >= 0.0 .and. bar2 >= 0.0 .and. bar1+bar2 <= 1.0) then
           ntr = 2 * ( (nz-1)*(i-1)+j-1) + k
           inc = 1
           return

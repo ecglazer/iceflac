@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 '''
 Read flac density and coordinate data and return gravity and topography at
 regular spacing.
@@ -95,7 +95,7 @@ def compute_gravity(frame):
     px = np.linspace(xmin, xmax, num=5*fl.nx)
     # pz is a few km above the highest topography to avoid high frequency oscillation
     pz_height = max(0, np.max(zz)) + 4e3
-    print('gravity evaluated at %f km' % pz_height)
+    print 'gravity evaluated at %f km' % pz_height
     pz = np.ones(px.shape) * pz_height
 
     # original topography defined in px grid

@@ -7,12 +7,13 @@
 
 subroutine init_areas
 use arrays
-use params
 include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
 
-!$OMP parallel do
-do i = 1,nx-1
-    do j = 1,nz-1
+
+do 13 i = 1,nx-1
+    do 13 j = 1,nz-1
 
         ! Coordinates
         x1 = cord (j  ,i  ,1)
@@ -26,30 +27,29 @@ do i = 1,nx-1
         
 	! (1) Element A:
         det=((x2*y3-y2*x3)-(x1*y3-y1*x3)+(x1*y2-y1*x2))
-        det1 = 1.d0/det
+        det1 = 1./det
         area(j,i,1) = det1
 
         ! (2) Element B:
         det=((x2*y4-y2*x4)-(x3*y4-y3*x4)+(x3*y2-y3*x2))
-        det1 = 1.d0/det
+        det1 = 1./det
         area(j,i,2) = det1
 
         ! (3) Element C:
         det=((x2*y4-y2*x4)-(x1*y4-y1*x4)+(x1*y2-y1*x2))
-        det1 = 1.d0/det
+        det1 = 1./det
         area(j,i,3) = det1
 
         ! (4) Element D:
         det=((x4*y3-y4*x3)-(x1*y3-y1*x3)+(x1*y4-y1*x4))
-        det1 = 1.d0/det
+        det1 = 1./det
         area(j,i,4) = det1
         if( area(j,i,1).lt.0.or.area(j,i,2).lt.0.or.area(j,i,3).lt.0.or.area(j,i,4).lt.0 ) then
             call SysMsg('INIT_AREAS: Negative area!')
             stop 41
         endif
-    enddo
-enddo
-!$OMP end parallel do
+13 continue
+
 return
 end
 
@@ -76,11 +76,11 @@ end
 
 function total_area( iph )
 use arrays
-use params
 include 'precision.inc'
+include 'params.inc'
+include 'arrays.inc'
 
 area_t = 0
-!$OMP parallel do reduction(+:area_t)
 do i = 1,nx-1
     do j = 1,nz-1
 
@@ -106,7 +106,6 @@ do i = 1,nx-1
 
     end do
 end do
-!$OMP end parallel do
 
 total_area = area_t
 

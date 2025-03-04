@@ -1,27 +1,19 @@
-subroutine marker2elem
-  !$ACC routine gang
-  use myrandom_mod
-  use marker_data
+subroutine marker2elem 
   use arrays
-  use params
-  use phases
-  implicit none
-
-  integer :: kph(1), i, j, k, kinc, inc, iseed, icount
-  double precision :: x1, x2, y1, y2, xx, yy, r1, r2
+  include 'precision.inc'
+  include 'params.inc'
+  include 'arrays.inc'
+  integer kph(1)
 
   !character*200 msg
 
   ! Interpolate marker properties into elements
   ! Find the triangle in which each marker belongs
 
-  !$OMP parallel do private(kinc,r1,r2,x1,y1,x2,y2,xx,yy,inc,icount)
-  !$ACC loop collapse(2) gang vector
+
   do i = 1 , nx-1
       do j = 1 , nz-1
-          iseed = nloop + i + j
-          kinc = nmark_elem(j,i)
-          icount = 0
+          kinc = sum(nphase_counter(:,j,i))
 
           !  if there are too few markers in the element, create a new one
           !  with age 0 (similar to initial marker)
@@ -29,53 +21,40 @@ subroutine marker2elem
           !    write(msg,*) 'marker2elem: , create a new marker in the element (i,j))', i, j
           !    call SysMsg(msg)
           !endif
-
           do while (kinc.le.4)
-              call myrandom(iseed, r1)
-              call myrandom(iseed, r2)
+              x1 = min(cord(j  ,i  ,1), cord(j+1,i  ,1))
+              y1 = min(cord(j  ,i  ,2), cord(j  ,i+1,2))
+              x2 = max(cord(j+1,i+1,1), cord(j  ,i+1,1))
+              y2 = max(cord(j+1,i+1,2), cord(j+1,i  ,2))
 
-              ! (x1, y1) and (x2, y2)
-              x1 = cord(j  ,i,1)*(1-r1) + cord(j  ,i+1,1)*r1
-              y1 = cord(j  ,i,2)*(1-r1) + cord(j  ,i+1,2)*r1
-              x2 = cord(j+1,i,1)*(1-r1) + cord(j+1,i+1,1)*r1
-              y2 = cord(j+1,i,2)*(1-r1) + cord(j+1,i+1,2)*r1
+              call random_number(rx)
+              call random_number(ry)
 
-              ! connect
-              ! (this point is not uniformly distributed within the element area
-              ! and is biased against the thicker side of the element, but this
-              ! point is almost gauranteed to be inside the element)
-              xx = x1*(1-r2) + x2*r2
-              yy = y1*(1-r2) + y2*r2
+              xx = x1 + rx*(x2-x1)
+              yy = y1 + ry*(y2-y1)
 
-              call add_marker(xx, yy, iphase(j,i), 0.d0, j, i, inc)
-              icount = icount + 1
-              if(icount > 100) stop 133
-              if(inc.le.0) cycle
+              call add_marker(xx, yy, iphase(j,i), 0., nmarkers, j, i, inc)
+              if(inc.eq.0) cycle
 
               kinc = kinc + 1
           enddo
 
-          call count_phase_ratio(j,i)
+          phase_ratio(1:nphase,j,i) = nphase_counter(1:nphase,j,i) / float(kinc)
+
+          ! the phase of this element is the most abundant marker phase
+          kph = maxloc(nphase_counter(:,j,i))
+          iphase(j,i) = kph(1)
+
+          !! sometimes there are more than one phases that are equally abundant
+          !maxphase = maxval(nphase_counter(:,j,i))
+          !nmax = count(nphase_counter(:,j,i) == maxphase)
+          !if(nmax .gt. 1) then
+          !    write(*,*) 'elem has equally abundant marker phases:', i,j,nmax,nphase_counter(:,j,i)
+          !    write(*,*) 'choosing the 1st maxloc as the phase'
+          !endif
 
       enddo
   enddo
-  !$OMP end parallel do
-
-  ! Find the Moho
-
-  !$OMP parallel do
-  !$ACC loop auto
-  do i = 1, nx-1
-      jmoho(i) = nz-1
-      do j = 1, nz-1
-          if (sum(phase_ratio(mantle_phases,j,i)) > 0.5d0) then
-              jmoho(i) = j
-              exit
-          endif
-      enddo
-      !print *, i, jmoho(i)
-  enddo
-  !$OMP end parallel do
 
   return
 end subroutine marker2elem
